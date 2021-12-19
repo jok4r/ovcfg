@@ -12,7 +12,7 @@ $ python3 -m pip install git+https://github.com/jok4r/ovcfg.git
 
 ## Usage
 ```
-import ovcfg
+from ovcfg import Config
 
 default_config = {
         'first': 'first param',

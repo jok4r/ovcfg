@@ -7,7 +7,14 @@ config_path_alternate = os.path.join(os.path.expanduser("~"), '.config')
 
 
 class Config(object):
-    def __init__(self, std_config=None, file='example.cfg', cfg_dir_name='example_config_dir', local=False):
+    def __init__(
+            self,
+            std_config=None,
+            file='example.cfg',
+            cfg_dir_name='example_config_dir',
+            local=False,
+            dir_path=None
+    ):
         global config_path
         if std_config is None:
             std_config = {}
@@ -18,6 +25,8 @@ class Config(object):
             config_path = pathlib.Path().absolute()
             self.dir_path = config_path
         else:
+            if dir_path:
+                config_path = dir_path
             self.dir_path = config_path
 
     def import_config(self):

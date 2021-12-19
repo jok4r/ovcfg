@@ -58,8 +58,6 @@ class Config(object):
 
 if __name__ == '__main__':
     input('Press Enter to create config')
-    # generate_config()
-    # print(import_config())
     sc = {
         'first': 'first param',
         'second': 'second param',

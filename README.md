@@ -6,7 +6,9 @@ Simple module for creating your config files and use it in your projects. Config
 	- Python3.5 or newer
 
 ## Installion
-$ python3 -m pip install ovcfg
+$ python3 -m pip install ovcfg<br /><br />
+**OR**<br /><br />
+$ python3 -m pip install git+https://github.com/jok4r/ovcfg.git
 
 ## Usage
 ```

@@ -1,3 +1,4 @@
 dist
 .idea
 ovcfg.egg-info
+ovcfg/__pycache__

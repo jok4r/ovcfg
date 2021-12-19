@@ -1,19 +1,22 @@
 import os
 import json
+import pathlib
 
 config_path = '/etc'
 config_path_alternate = os.path.join(os.path.expanduser("~"), '.config')
 
 
 class Config(object):
-    def __init__(self, std_config=None, file='example.cfg', cfg_dir_name='example', dir_path=None):
+    def __init__(self, std_config=None, file='example.cfg', cfg_dir_name='example_config_dir', local=False):
+        global config_path
         if std_config is None:
             std_config = {}
         self.std_config = std_config
         self.file = file
         self.cfg_dir_name = cfg_dir_name
-        if dir_path:
-            self.dir_path = dir_path
+        if local:
+            config_path = pathlib.Path().absolute()
+            self.dir_path = config_path
         else:
             self.dir_path = config_path
 

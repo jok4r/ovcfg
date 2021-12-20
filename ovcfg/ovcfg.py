@@ -21,6 +21,8 @@ class Config(object):
         self.std_config = std_config
         self.file = file
         self.cfg_dir_name = cfg_dir_name
+        if local and dir_path:
+            raise ValueError('If local is True, dir_path cannot be defined!')
         if local:
             config_path = pathlib.Path().absolute()
             self.dir_path = config_path

@@ -56,14 +56,14 @@ class Config(object):
     @staticmethod
     def update_config(path, c_data):
         with open(path, 'w') as f:
-            f.write(json.dumps(c_data, indent=4, sort_keys=True))
+            f.write(json.dumps(c_data, indent=4))
 
     def generate_config(self):
         full_path = os.path.join(self.dir_path, self.cfg_dir_name, self.file)
         try:
             os.makedirs(os.path.dirname(full_path), exist_ok=True)
             with open(full_path, 'w') as f:
-                f.write(json.dumps(self.std_config, indent=4, sort_keys=True))
+                f.write(json.dumps(self.std_config, indent=4))
         except PermissionError:
             self.dir_path = config_path_alternate
             return self.generate_config()

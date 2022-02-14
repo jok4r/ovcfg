@@ -13,7 +13,8 @@ class Config(object):
             file='example.cfg',
             cfg_dir_name='example_config_dir',
             local=False,
-            dir_path=None
+            dir_path=None,
+            sort_keys=False
     ):
         global config_path
         if std_config is None:
@@ -30,6 +31,7 @@ class Config(object):
             if dir_path:
                 config_path = dir_path
             self.dir_path = config_path
+        self.sort_keys = sort_keys
 
     def import_config(self):
         full_path = os.path.join(self.dir_path, self.cfg_dir_name, self.file)
@@ -53,17 +55,16 @@ class Config(object):
             self.update_config(full_path, load_config_data)
         return load_config_data
 
-    @staticmethod
-    def update_config(path, c_data):
+    def update_config(self, path, c_data):
         with open(path, 'w') as f:
-            f.write(json.dumps(c_data, indent=4))
+            f.write(json.dumps(c_data, indent=4, sort_keys=self.sort_keys))
 
     def generate_config(self):
         full_path = os.path.join(self.dir_path, self.cfg_dir_name, self.file)
         try:
             os.makedirs(os.path.dirname(full_path), exist_ok=True)
             with open(full_path, 'w') as f:
-                f.write(json.dumps(self.std_config, indent=4))
+                f.write(json.dumps(self.std_config, indent=4, sort_keys=self.sort_keys))
         except PermissionError:
             self.dir_path = config_path_alternate
             return self.generate_config()

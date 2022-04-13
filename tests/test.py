@@ -12,7 +12,7 @@ class TestMethods(unittest.TestCase):
         super(TestMethods, self).__init__(*args, **kwargs)
 
     def test_main(self):
-        sc = {_get_rnd_string(10): _get_rnd_string(10) for i in range(10)}
+        sc = {'%s_%s' % (i, _get_rnd_string(10)): _get_rnd_string(10) for i in range(10)}
         config_file = '%s.json' % uuid4()
         cfg_dir_name = str(uuid4())
         print("Creating config: %s with dir name: %s" % (config_file, cfg_dir_name))

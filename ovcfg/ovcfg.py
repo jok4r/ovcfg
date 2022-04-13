@@ -4,6 +4,7 @@ import pathlib
 
 config_path = '/etc'
 config_path_alternate = os.path.join(os.path.expanduser("~"), '.config')
+config_path_windows = os.getenv('APPDATA')
 
 
 class Config(object):
@@ -30,19 +31,24 @@ class Config(object):
         else:
             if dir_path:
                 config_path = dir_path
-            self.dir_path = config_path
+            if os.name == 'posix':
+                self.dir_path = config_path
+            elif os.name == 'nt':
+                self.dir_path = config_path_windows
+            else:
+                raise RuntimeError('Unsupported platform: %s' % os.name)
         self.sort_keys = sort_keys
 
-    def import_config(self):
+    def import_config(self, alternate=False):
         full_path = os.path.join(self.dir_path, self.cfg_dir_name, self.file)
         if not os.path.isfile(full_path):
-            if self.dir_path == config_path_alternate:
-                self.dir_path = config_path
+            if alternate:
+                # self.dir_path = config_path
                 self.generate_config()
                 full_path = os.path.join(self.dir_path, self.cfg_dir_name, self.file)
             else:
-                self.dir_path = config_path_alternate
-                return self.import_config()
+                # self.dir_path = config_path_alternate
+                return self.import_config(alternate=True)
         with open(full_path, 'r') as f:
             load_config_data = json.loads(f.read())
         # self.std_config = self.get_std_config()

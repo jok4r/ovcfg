@@ -2,3 +2,4 @@ dist
 .idea
 ovcfg.egg-info
 ovcfg/__pycache__
+.DS_Store

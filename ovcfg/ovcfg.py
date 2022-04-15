@@ -44,11 +44,11 @@ class Config(object):
         self.full_path = os.path.join(self.dir_path, self.cfg_dir_name, self.file)
         if not os.path.isfile(self.full_path):
             if alternate:
-                # self.dir_path = config_path
+                self.dir_path = config_path
                 self.generate_config()
                 self.full_path = os.path.join(self.dir_path, self.cfg_dir_name, self.file)
             else:
-                # self.dir_path = config_path_alternate
+                self.dir_path = config_path_alternate
                 return self.import_config(alternate=True)
         with open(self.full_path, 'r') as f:
             load_config_data = json.loads(f.read())

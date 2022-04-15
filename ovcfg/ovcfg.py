@@ -59,11 +59,11 @@ class Config(object):
                 load_config_data[key] = self.std_config[key]
                 need_update = True
         if need_update:
-            self.update_config(self.full_path, load_config_data)
+            self.update_config(load_config_data)
         return load_config_data
 
-    def update_config(self, path, c_data):
-        with open(path, 'w') as f:
+    def update_config(self, c_data):
+        with open(self.full_path, 'w') as f:
             f.write(json.dumps(c_data, indent=4, sort_keys=self.sort_keys))
 
     def generate_config(self):

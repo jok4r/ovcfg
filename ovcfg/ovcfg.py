@@ -77,6 +77,7 @@ class Config(object):
                 need_update = True
         if need_update:
             self.update_config(load_config_data)
+        print(f'Imported config from: {self.get_full_path()}')
         return load_config_data
 
     def update_config(self, c_data):

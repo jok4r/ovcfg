@@ -56,12 +56,12 @@ class Config(object):
                 if os.path.isfile(full_path):
                     if os.access(full_path, os.W_OK):
                         path.selected = True
-                        self.dir_path = path.path
-                        return full_path
+                        return path.path
                 else:
-                    if os.access(path.path, os.W_OK) and mode == 'create':
-                        self.dir_path = path.path
-                        return full_path
+                    if mode == 'create' and os.access(path.path, os.W_OK):
+                        path.selected = True
+                        self.generate_config()
+                        return path.path
         else:
             if mode == 'find':
                 return self.get_config_path('create')
@@ -69,7 +69,10 @@ class Config(object):
                 raise RuntimeError("Can't find or write config")
 
     def import_config(self):
-        if not self.dir_path:
+        if self.dir_path:
+            if not os.path.isfile(self.get_full_path()):
+                self.generate_config()
+        else:
             self.dir_path = self.get_config_path()
         with open(self.get_full_path(), 'r') as f:
             load_config_data = json.loads(f.read())

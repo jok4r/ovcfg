@@ -1,16 +1,15 @@
 import os
 import json
 import pathlib
-from ovcfg import Cpath
 
 
 config_paths = {
     "posix": [
-        Cpath('/etc'),
-        Cpath(os.path.join(os.path.expanduser("~"), '.config'))
+        '/etc',
+        os.path.join(os.path.expanduser("~"), '.config')
     ],
     'nt': [
-        Cpath(os.getenv('APPDATA'))
+        os.getenv('APPDATA')
     ]
 }
 
@@ -46,26 +45,17 @@ class Config(object):
         return os.path.join(path, self.cfg_dir_name, self.file)
 
     def get_config_path(self, mode='find'):
-        # I know that path.selected probably not works, but for now I don't want to delete this
         for path in self.config_paths[os.name]:
-            full_path = self.get_full_path(path.path)
-            if not isinstance(path, Cpath):
-                raise RuntimeError('Path is not Cpath')
-            if path.selected:
-                self.dir_path = path.path
-                return True
+            full_path = self.get_full_path(path)
+            if os.path.isfile(full_path):
+                if os.access(full_path, os.W_OK):
+                    self.dir_path = path
+                    return True
             else:
-                if os.path.isfile(full_path):
-                    if os.access(full_path, os.W_OK):
-                        path.selected = True
-                        self.dir_path = path.path
-                        return True
-                else:
-                    if mode == 'create' and os.access(path.path, os.W_OK):
-                        path.selected = True
-                        self.dir_path = path.path
-                        self.generate_config()
-                        return True
+                if mode == 'create' and os.access(path, os.W_OK):
+                    self.dir_path = path
+                    self.generate_config()
+                    return True
         else:
             if mode == 'find':
                 return self.get_config_path('create')

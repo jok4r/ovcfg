@@ -25,6 +25,7 @@ class Config(object):
             dir_path=None,
             sort_keys=False
     ):
+        self.config_paths = config_paths
         if std_config is None:
             std_config = {}
         self.std_config = std_config
@@ -45,13 +46,14 @@ class Config(object):
         return os.path.join(path, self.cfg_dir_name, self.file)
 
     def get_config_path(self, mode='find'):
-        global config_paths
-        for path in config_paths[os.name]:
+        # I know that path.selected probably not works, but for now I don't want to delete this
+        for path in self.config_paths[os.name]:
             full_path = self.get_full_path(path.path)
             if not isinstance(path, Cpath):
                 raise RuntimeError('Path is not Cpath')
             if path.selected:
-                return full_path
+                self.dir_path = path.path
+                return True
             else:
                 if os.path.isfile(full_path):
                     if os.access(full_path, os.W_OK):

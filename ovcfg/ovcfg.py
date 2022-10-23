@@ -1,10 +1,18 @@
 import os
 import json
 import pathlib
+from ovcfg import Cpath
 
-config_path = '/etc'
-config_path_alternate = os.path.join(os.path.expanduser("~"), '.config')
-config_path_windows = os.getenv('APPDATA')
+
+config_paths = {
+    "posix": [
+        Cpath('/etc'),
+        Cpath(os.path.join(os.path.expanduser("~"), '.config'))
+    ],
+    'nt': [
+        Cpath(os.getenv('APPDATA'))
+    ]
+}
 
 
 class Config(object):
@@ -17,7 +25,6 @@ class Config(object):
             dir_path=None,
             sort_keys=False
     ):
-        global config_path
         if std_config is None:
             std_config = {}
         self.std_config = std_config
@@ -29,30 +36,43 @@ class Config(object):
             config_path = pathlib.Path().absolute()
             self.dir_path = config_path
         else:
-            if dir_path:
-                config_path = dir_path
-            if os.name == 'posix':
-                self.dir_path = config_path
-            elif os.name == 'nt':
-                self.dir_path = config_path_windows
-            else:
-                raise RuntimeError('Unsupported platform: %s' % os.name)
+            self.dir_path = None
         self.sort_keys = sort_keys
-        self.full_path = None
 
-    def import_config(self, alternate=False):
-        self.full_path = os.path.join(self.dir_path, self.cfg_dir_name, self.file)
-        if not os.path.isfile(self.full_path):
-            if alternate:
-                self.dir_path = config_path
-                self.generate_config()
-                self.full_path = os.path.join(self.dir_path, self.cfg_dir_name, self.file)
+    def get_full_path(self, path=None):
+        if not path:
+            path = self.dir_path
+        return os.path.join(path, self.cfg_dir_name, self.file)
+
+    def get_config_path(self, mode='find'):
+        global config_paths
+        for path in config_paths[os.name]:
+            full_path = self.get_full_path(path.path)
+            if not isinstance(path, Cpath):
+                raise RuntimeError('Path is not Cpath')
+            if path.selected:
+                return full_path
             else:
-                self.dir_path = config_path_alternate
-                return self.import_config(alternate=True)
-        with open(self.full_path, 'r') as f:
+                if os.path.isfile(full_path):
+                    if os.access(full_path, os.W_OK):
+                        path.selected = True
+                        self.dir_path = path.path
+                        return full_path
+                else:
+                    if os.access(path.path, os.W_OK) and mode == 'create':
+                        self.dir_path = path.path
+                        return full_path
+        else:
+            if mode == 'find':
+                return self.get_config_path('create')
+            else:
+                raise RuntimeError("Can't find or write config")
+
+    def import_config(self):
+        if not self.dir_path:
+            self.dir_path = self.get_config_path()
+        with open(self.get_full_path(), 'r') as f:
             load_config_data = json.loads(f.read())
-        # self.std_config = self.get_std_config()
         need_update = False
         for key in self.std_config:
             if key not in load_config_data:
@@ -63,26 +83,12 @@ class Config(object):
         return load_config_data
 
     def update_config(self, c_data):
-        with open(self.full_path, 'w') as f:
+        with open(self.get_full_path(), 'w') as f:
             f.write(json.dumps(c_data, indent=4, sort_keys=self.sort_keys))
 
     def generate_config(self):
-        self.full_path = os.path.join(self.dir_path, self.cfg_dir_name, self.file)
-        try:
-            os.makedirs(os.path.dirname(self.full_path), exist_ok=True)
-            with open(self.full_path, 'w') as f:
-                f.write(json.dumps(self.std_config, indent=4, sort_keys=self.sort_keys))
-        except PermissionError:
-            self.dir_path = config_path_alternate
-            return self.generate_config()
-        print(f'Created new config: {self.full_path}')
-
-
-if __name__ == '__main__':
-    input('Press Enter to create config')
-    sc = {
-        'first': 'first param',
-        'second': 'second param',
-    }
-    cfg = Config(sc, 'ex.json').import_config()
-    print(cfg)
+        full_path = self.get_full_path()
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        with open(full_path, 'w') as f:
+            f.write(json.dumps(self.std_config, indent=4, sort_keys=self.sort_keys))
+        print(f'Created new config: {full_path}')

@@ -68,7 +68,7 @@ class Config(object):
                 self.generate_config()
         else:
             self.get_config_path()
-        with open(self.get_full_path(), 'r') as f:
+        with open(self.get_full_path(), 'r', encoding='utf-8') as f:
             load_config_data = json.loads(f.read())
         need_update = False
         for key in self.std_config:
@@ -81,12 +81,12 @@ class Config(object):
         return load_config_data
 
     def update_config(self, c_data):
-        with open(self.get_full_path(), 'w') as f:
+        with open(self.get_full_path(), 'w', encoding='utf-8') as f:
             f.write(json.dumps(c_data, indent=4, sort_keys=self.sort_keys))
 
     def generate_config(self):
         full_path = self.get_full_path()
         os.makedirs(os.path.dirname(full_path), exist_ok=True)
-        with open(full_path, 'w') as f:
+        with open(full_path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.std_config, indent=4, sort_keys=self.sort_keys))
         print(f'Created new config: {full_path}')

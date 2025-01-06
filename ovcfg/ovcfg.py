@@ -48,7 +48,7 @@ class Config(object):
         for path in self.config_paths[os.name]:
             full_path = self.get_full_path(path)
             if os.path.isfile(full_path):
-                if os.access(full_path, os.W_OK):
+                if os.access(full_path, os.R_OK):
                     self.dir_path = path
                     return True
             else:
